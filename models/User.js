@@ -6,6 +6,9 @@ const userSchema = new mongoose.Schema(
                     type: mongoose.Schema.Types.ObjectId, // Primary Key
                     auto: true,
             },
+            username:{
+                type: String,
+            },
             email: {
                     type: String,
                     required: true,
@@ -19,9 +22,9 @@ const userSchema = new mongoose.Schema(
                     default: null,
                     minlength: 8,
             },
-            profile_picture: {
+            photo: {
                     type: String, // URL or file path
-                    default: null,
+                //     default: null,
                     required: false,
             },
             role: {

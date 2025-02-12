@@ -5,8 +5,13 @@ const bodyParser = require("body-parser");
 
 const app = express();
 
+// Import multer configuration from config/multerConfig.js
+const upload = require('./config/multerConfig');
+
+const connectDB = require("./config/db");
+
 // Import routes
-const adminRoutes = require("./routes/adminRoutes");
+// const adminRoutes = require("./routes/adminRoutes");
 const authRoutes = require("./routes/authRoutes");
 const productRoutes = require("./routes/productRoutes");
 const orderRoutes = require("./routes/orderRoutes");
@@ -20,17 +25,19 @@ const returnRoutes = require("./routes/returnRoutes");
 const couponRoutes = require("./routes/CouponRoutes");
 const notificationRoutes = require("./routes/NotificationRouter");
 
-// Connect to the database
-const connectDB = async () => {
-    try {
-        // Using environment variable for MongoDB URI (security best practice)
-        await mongoose.connect(process.env.MONGO_URI, { useNewUrlParser: true, useUnifiedTopology: true });
-        console.log("MongoDB connected");
-    } catch (err) {
-        console.error("Error connecting to MongoDB:", err);
-        process.exit(1); // Stop the server if the DB connection fails
-    }
-};
+// // Connect to the database
+// const connectDB = async () => {
+//     try {
+//         // Using environment variable for MongoDB URI (security best practice)
+//         await mongoose.connect(process.env.MONGO_URI, { useNewUrlParser: true, useUnifiedTopology: true });
+//         console.log("MongoDB connected");
+//     } catch (err) {
+//         console.error("Error connecting to MongoDB:", err);
+//         process.exit(1); // Stop the server if the DB connection fails
+//     }
+// };
+
+
 
 // Middleware
 app.use(cors()); // Enable CORS for all origins
@@ -40,7 +47,7 @@ app.use(express.urlencoded({ extended: true }));
 app.use('/uploads', express.static('uploads')); // Endpoint for Image Location
 
 // Use routes
-app.use("/api/admin", adminRoutes);
+// app.use("/api/admin", adminRoutes);
 app.use("/api/auth", authRoutes);
 app.use("/api/products", productRoutes);
 app.use("/api/orders", orderRoutes);

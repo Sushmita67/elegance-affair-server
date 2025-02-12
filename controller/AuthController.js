@@ -19,7 +19,7 @@ const register = async (req, res) => {
         }
 
         // Create a new user with pending status and no password
-        const newUser = new User({ email, role, status: "pending" });
+        const newUser = new User({ email, role, status: "pending",photo });
         await newUser.save();
 
         // Generate a reset token for setting the password
@@ -49,6 +49,99 @@ const register = async (req, res) => {
         res.status(500).json({ message: "Registration failed.", error });
     }
 };
+
+// Mobile Registration
+const registerMobile = async (req, res) => {
+    try {
+        const { name, email, username, phone, password,photo } = req.body;
+
+        // Check for required fields
+        if (!email || !password ) {
+            return res.status(400).send({ message: "Email, password" });
+        }
+
+        // Check if email already exists
+        const existingUser = await User.findOne({ email });
+        if (existingUser) {
+            return res.status(400).send({ message: "Email is already registered" });
+        }
+
+        // // Check if email already exists
+        // const existingUsername = await User.findOne({ username });
+        // if (existingUsername) {
+        //     return res.status(400).send({ message: "Username is already registered" });
+        // }
+
+        // Hash the password
+        const hashedPassword = await bcrypt.hash(password, 10);
+
+        // Create a new user
+        const user = new User({
+            name,
+            email,
+            photo,
+            username,
+            phone,
+            password: hashedPassword,
+            role: "customer", // Default role for mobile users
+            status: "active", // Active by default for mobile registration
+        });
+
+        // Save the user
+        await user.save();
+
+        // Generate a token for immediate session
+        const token = jwt.sign(
+            { user_id: user._id, email: user.email, role: user.role },
+            SECRET_KEY,
+            { expiresIn: "24h" }
+        );
+
+        // // Send registration email
+        // const mailOptions = {
+        //     from: process.env.EMAIL_USER,
+        //     to: user.email,
+        //     subject: "Registration Successful. Welcome!",
+        //     html: WelcomeEmail({ name: user.name }),
+        // };
+        // await transporter.sendMail(mailOptions);
+
+        res
+            .status(201)
+            .cookie("token", token) // key , value ,options
+            .json({
+                success: true,
+                token,
+            });
+
+        //
+        // res.status(201).send({
+        //     message: "Registration successful",
+        //     token,
+        //     user_id: user._id,
+        //     email: user.email,
+        //     name: user.name,
+        //     role: user.role,
+        // });
+    } catch (error) {
+        console.error("Mobile Registration Error:", error);
+        res.status(500).send({ message: "Registration failed", error });
+    }
+};
+
+
+//upload Images
+ const uploadImage = async (req, res, next) => {
+
+
+    if (!req.file) {
+        return res.status(400).send({ message: "Please upload a file" });
+    }
+    res.status(200).json({
+        success: true,
+        data: req.file.filename,
+    });
+}
 
 // Login a user
 const login = async (req, res) => {
@@ -151,6 +244,8 @@ const validateSession = (req, res) => {
 
 module.exports = {
     register,
+    registerMobile,
+    uploadImage,
     login,
     resetPasswordRequest,
     resetPassword,
