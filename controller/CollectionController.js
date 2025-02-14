@@ -4,7 +4,7 @@ const Collection = require("../models/Collection");
 const getAllCollections = async (req, res) => {
     try {
         const collections = await Collection.find();
-        res.json(collections);
+        res.json(collections);nh
     } catch (error) {
         res.status(500).json({ message: "Error fetching collections", error });
     }

@@ -24,6 +24,8 @@ const paymentRoutes = require("./routes/paymentRoutes");
 const returnRoutes = require("./routes/returnRoutes");
 const couponRoutes = require("./routes/CouponRoutes");
 const notificationRoutes = require("./routes/NotificationRouter");
+const categoryRoutes = require("./routes/CategoryRoutes");
+const collectionRoutes = require("./routes/CollectionRoutes");
 
 // // Connect to the database
 // const connectDB = async () => {
@@ -60,6 +62,8 @@ app.use("/api/payments", paymentRoutes);
 app.use("/api/returns", returnRoutes);
 app.use("/api/coupons", couponRoutes);
 app.use("/api/notifications", notificationRoutes);
+app.use("/api/categories", categoryRoutes);
+app.use("/api/collections", collectionRoutes);
 
 const port = process.env.PORT || 5000;
 

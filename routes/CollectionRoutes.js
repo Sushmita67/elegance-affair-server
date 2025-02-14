@@ -1,13 +1,13 @@
 const express = require("express");
+const router = express.Router();
+
 const {
     getAllCollections,
     getCollectionById,
     createCollection,
     updateCollection,
     deleteCollection,
-} = require("../controllers/CollectionController");
-
-const router = express.Router();
+} = require("../controller/CollectionController");
 
 router.get("/", getAllCollections);
 router.get("/:id", getCollectionById);
