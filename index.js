@@ -42,7 +42,7 @@ const collectionRoutes = require("./routes/CollectionRoutes");
 
 
 // Middleware
-app.use(cors()); // Enable CORS for all origins
+app.use(cors()); 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
