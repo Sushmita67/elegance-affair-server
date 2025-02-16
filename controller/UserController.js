@@ -1,5 +1,9 @@
 const User = require("../models/User");
 const transporter = require("../config/mailConfig");
+const bcrypt = require("bcryptjs"); // ✅ bcryptjs for compatibility
+
+const jwt = require("jsonwebtoken");
+const SECRET_KEY = process.env.JWT_SECRET || "your_secret_key"; // Use .env for security
 
 // Get all users
 const getAllUsers = async (req, res) => {
@@ -107,6 +111,37 @@ const deleteUser = async (req, res) => {
         res.status(500).json({ message: "Error deleting user", error });
     }
 };
+// Login a user
+const login1 = async (req, res) => {
+    try {
+        const { email, password } = req.body;
+
+        const user = await User.findOne({ email });
+        // if (!user || !(await bcrypt.compare(password, user.password))) {
+        //     return res.status(401).json({ message: "Invalid email or password." });
+        // }
+        if (password !== user.password) {
+            return res.status(401).json({ message: "Invalid email or password." });
+        }
+
+        // Generate a token
+        const token = jwt.sign(
+            { user_id: user._id, email: user.email, role: user.role },
+            SECRET_KEY,
+            { expiresIn: "6h" }
+        );
+
+        res.status(200).json({
+            token,
+            user: { id: user._id, email: user.email, role: user.role },
+            message: "Login successful.",
+        });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ message: "Login failed.", error });
+    }
+};
+
 
 module.exports = {
     getAllUsers,
@@ -115,4 +150,5 @@ module.exports = {
     updateUser,
     patchUser,
     deleteUser,
+    login1,
 };

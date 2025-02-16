@@ -9,44 +9,85 @@ const RESET_TOKEN_EXPIRY = 3600; // 1 hour expiration for reset tokens
 
 // Register a new user
 const register = async (req, res) => {
+    // try {
+    //     const { email, role = "customer" } = req.body;
+
+    //     // Check if the email is already in use
+    //     const existingUser = await User.findOne({ email });
+    //     if (existingUser) {
+    //         return res.status(400).json({ message: "Email is already registered." });
+    //     }
+
+    //     // Create a new user with pending status and no password
+    //     const newUser = new User({ email, role, status: "pending",photo });
+    //     await newUser.save();
+
+    //     // Generate a reset token for setting the password
+    //     const resetToken = jwt.sign({ user_id: newUser._id }, SECRET_KEY, { expiresIn: RESET_TOKEN_EXPIRY });
+
+    //     // Construct the reset link
+    //     const resetLink = `${process.env.CLIENT_URL}/reset-password?token=${resetToken}`;
+
+    //     // Send a welcome email with the password reset link
+    //     const mailOptions = {
+    //         from: process.env.EMAIL_USER,
+    //         to: newUser.email,
+    //         subject: "Welcome to Emirates Elegance! Complete Your Registration",
+    //         html: `
+    //             <p>Hi ${email},</p>
+    //             <p>Thank you for registering with Emirates Elegance.</p>
+    //             <p>Click <a href="${resetLink}">here</a> to set your password and complete your registration.</p>
+    //             <p>If you did not sign up, please ignore this email.</p>
+    //         `,
+    //     };
+
+    //     await transporter.sendMail(mailOptions);
+
+    //     res.status(201).json({ message: "Registration successful. Check your email to set your password." });
+    // } catch (error) {
+    //     console.error(error);
+    //     res.status(500).json({ message: "Registration failed.", error });
+    // }
     try {
-        const { email, role = "customer" } = req.body;
+        const { email, username, password } = req.body;
 
-        // Check if the email is already in use
-        const existingUser = await User.findOne({ email });
-        if (existingUser) {
-            return res.status(400).json({ message: "Email is already registered." });
-        }
+        // Hash the password
+        const hashedPassword = await bcrypt.hash(password, 10);
+        // Create a new user
+        const user = new User({
+            email,
+            username,
+            password: hashedPassword,
+            role: "customer", // Default role for mobile users
+        });
+        await user.save();
 
-        // Create a new user with pending status and no password
-        const newUser = new User({ email, role, status: "pending",photo });
-        await newUser.save();
-
-        // Generate a reset token for setting the password
-        const resetToken = jwt.sign({ user_id: newUser._id }, SECRET_KEY, { expiresIn: RESET_TOKEN_EXPIRY });
-
-        // Construct the reset link
-        const resetLink = `${process.env.CLIENT_URL}/reset-password?token=${resetToken}`;
-
-        // Send a welcome email with the password reset link
+        // Email content
         const mailOptions = {
             from: process.env.EMAIL_USER,
-            to: newUser.email,
-            subject: "Welcome to Emirates Elegance! Complete Your Registration",
+            to: user.email,
+            subject: "Welcome to Our Jewelry Store",
+            text: `Hello ${user.username},\n\nWelcome to our jewelry store! Your user ID is ${user._id}.\n\nThank you for registering.\n\nBest regards,\nThe Jewelry Store Team`,
             html: `
-                <p>Hi ${email},</p>
-                <p>Thank you for registering with Emirates Elegance.</p>
-                <p>Click <a href="${resetLink}">here</a> to set your password and complete your registration.</p>
-                <p>If you did not sign up, please ignore this email.</p>
+                <p>Hello <strong>${user.username}</strong>,</p>
+                <p>Welcome to our jewelry store! Your user ID is <strong>${user._id}</strong>.</p>
+                <p>Thank you for registering.</p>
+                <p>Best regards,<br>The Jewelry Store Team</p>
             `,
         };
 
+        // Send the email
         await transporter.sendMail(mailOptions);
 
-        res.status(201).json({ message: "Registration successful. Check your email to set your password." });
+        res.status(201).json({
+            message: "User created successfully and email sent",
+            user,
+        });
     } catch (error) {
-        console.error(error);
-        res.status(500).json({ message: "Registration failed.", error });
+        res.status(500).json({
+            message: "Error creating user or sending email",
+            error,
+        });
     }
 };
 

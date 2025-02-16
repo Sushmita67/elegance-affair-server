@@ -12,7 +12,7 @@ const connectDB = require("./config/db");
 
 // Import routes
 // const adminRoutes = require("./routes/adminRoutes");
-const authRoutes = require("./routes/authRoutes");
+const authRoutes = require("./routes/AuthRoutes");
 const productRoutes = require("./routes/productRoutes");
 const orderRoutes = require("./routes/orderRoutes");
 const inventoryRoutes = require("./routes/inventoryRoutes");
