@@ -58,7 +58,7 @@ const register = async (req, res) => {
             email,
             username,
             password: hashedPassword,
-            role: "customer", // Default role for mobile users
+            role: "customer", 
         });
         await user.save();
 
@@ -107,12 +107,6 @@ const registerMobile = async (req, res) => {
             return res.status(400).send({ message: "Email is already registered" });
         }
 
-        // // Check if email already exists
-        // const existingUsername = await User.findOne({ username });
-        // if (existingUsername) {
-        //     return res.status(400).send({ message: "Username is already registered" });
-        // }
-
         // Hash the password
         const hashedPassword = await bcrypt.hash(password, 10);
 
@@ -124,8 +118,8 @@ const registerMobile = async (req, res) => {
             username,
             phone,
             password: hashedPassword,
-            role: "customer", // Default role for mobile users
-            status: "active", // Active by default for mobile registration
+            role: "customer", 
+            status: "active",
         });
 
         // Save the user
@@ -155,15 +149,7 @@ const registerMobile = async (req, res) => {
                 token,
             });
 
-        //
-        // res.status(201).send({
-        //     message: "Registration successful",
-        //     token,
-        //     user_id: user._id,
-        //     email: user.email,
-        //     name: user.name,
-        //     role: user.role,
-        // });
+    
     } catch (error) {
         console.error("Mobile Registration Error:", error);
         res.status(500).send({ message: "Registration failed", error });
@@ -202,6 +188,7 @@ const login = async (req, res) => {
         );
 
         res.status(200).json({
+            success: true,
             token,
             user: { id: user._id, email: user.email, role: user.role },
             message: "Login successful.",
@@ -268,18 +255,24 @@ const resetPassword = async (req, res) => {
     }
 };
 
-// Validate session
-const validateSession = (req, res) => {
+// Validate Session
+const validateSession = async (req, res) => {
     try {
         const token = req.header("Authorization")?.split(" ")[1];
+
         if (!token) {
-            return res.status(401).json({ message: "No token provided." });
+            return res.status(401).send({ message: "No token provided" });
         }
 
         const verified = jwt.verify(token, SECRET_KEY);
-        res.status(200).json({ message: "Session is valid.", user: verified });
+
+        if (!verified) {
+            return res.status(401).send({ message: "Invalid or expired token" });
+        }
+
+        res.status(200).send({ message: "Token is valid", user: verified });
     } catch (error) {
-        res.status(401).json({ message: "Invalid or expired token.", error });
+        res.status(401).send({ message: "Invalid or expired token", error });
     }
 };
 

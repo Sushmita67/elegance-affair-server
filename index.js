@@ -74,3 +74,6 @@ connectDB().then(() => {
         console.log(`Welcome to Elegance Affair Backend!`);
     });
 });
+
+
+module.exports= app;
